@@ -41,7 +41,6 @@ and a.admissionweight is not null
 -- and a.dischargeweight is not null -- discharge weight has more NULL values than admission weight (90k vs 16k) so I decided to use admission weight.
 and diedinhospital is not null
 and b.readmit = 0 -- excluding readmission
-and c.predictedhospitalmortality is not null
 and c.predictedhospitalmortality != '-1'
 and c.apacheversion = 'IV'
 and  a.admissionweight between 30 and 320  -- excluding patients with weight < 30kg and more tha 320 kg -- I compared with dischargeweight and weigths outside this range didn´t make sense
