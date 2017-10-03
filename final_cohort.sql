@@ -9,7 +9,7 @@ select a.patientunitstayid,a.uniquepid,ROW_NUMBER() over (partition by a.uniquep
       else a.age end as age_fixed
 , a. gender, a.ethnicity,a.hospitaladmitsource,a.unittype, a.unitadmitsource,a.apacheadmissiondx, a.admissionheight as height ,a.admissionweight as weight, a.dischargeweight
 , b.readmit,a.hospitalid,h.numbedscategory, h.teachingstatus, h.region,  b.aids, b.hepaticfailure, b.lymphoma, b.metastaticcancer,b.leukemia, b.immunosuppression, b.cirrhosis, b.electivesurgery
-,t.dialysis as chronic_dialysis_prior_to_hospital,ch.charlson_score,c.actualiculos,c.actualhospitallos,c.actualventdays,t.intubated as intubated_first_24h
+,t.dialysis as chronic_dialysis_prior_to_hospital,ch.charlson_score,c.unabridgedunitlos as icu_los,c.unabridgedhosplos as hospital_los,c.unabridgedactualventdays as ventduration,t.intubated as intubated_first_24h
 ,(cv.sofa_cv+respi.sofa_respi+ renal.sofarenal+others.sofacoag+ others.sofaliver+others.sofacns) as sofatotal, c.predictedicumortality, c.actualicumortality
 ,case -- fixing icu mortality
       when lower(c.actualicumortality) like '%alive%' THEN 0
