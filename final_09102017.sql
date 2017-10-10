@@ -46,7 +46,7 @@ and c.predictedhospitalmortality != '-1'
 and c.apacheversion = 'IV'
 and  a.admissionweight between 30 and 320  -- excluding patients with weight < 30kg and more tha 320 kg -- I compared with dischargeweight and weigths outside this range didn´t make sense
 and a.admissionheight between  120 and 230 -- excluding patients with height less than 120 cm and more than 220 cm
-and lower(d.diagnosisstring) not like 'pregnancy'
+and lower(d.diagnosisstring) not like 'pregnancy'-- excluding patients with preganacy related diagnosis
 )
 , t2 as  -- creating bmi
 (
