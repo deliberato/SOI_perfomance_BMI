@@ -8,4 +8,5 @@ inclusion criteria:
   - no missing height and weight
   - no missing predicted hospital mortality (calculate by APACHE-IV)
   - no missing information about hospital mortality
+  - patients without pregnacy related diganosis
   
