@@ -14,7 +14,7 @@ select a.patientunitstayid,a.uniquepid,ROW_NUMBER() over (partition by a.uniquep
       when lower(c.actualicumortality) like '%alive%' THEN 0
       when lower(c.actualicumortality) like '%expired%' THEN 1 
       else null end as died_icu
-,c.apachescore,c.apacheversion,c.predictedhospitalmortality,c.actualhospitalmortality,b.diedinhospital
+,c.apachescore,c.apacheversion, o.oasis, o.oasis_prob,c.predictedhospitalmortality,c.actualhospitalmortality,b.diedinhospital
 from patient a
 left join apachepredvar b
 on a.patientunitstayid = b.patientunitstayid
@@ -32,6 +32,8 @@ left join sofa3others others
 on a.patientunitstayid = others.patientunitstayid
 left join charlson_score ch
 on a.patientunitstayid = ch.patientunitstayid
+left join oasis o
+on a.patientunitstayid = o.patientunitstayid
 left join diagnosis d
 on a.patientunitstayid = d.patientunitstayid
 left join hospital h
