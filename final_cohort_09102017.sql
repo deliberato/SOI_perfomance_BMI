@@ -8,13 +8,17 @@ select a.patientunitstayid,a.uniquepid,ROW_NUMBER() over (partition by a.uniquep
       else a.age end as age_fixed
 , a. gender, a.ethnicity,a.hospitaladmitsource,a.unittype, a.unitadmitsource,a.apacheadmissiondx,d.diagnosisstring, a.admissionheight as height ,a.admissionweight as weight, a.dischargeweight
 , b.readmit,a.hospitalid,h.numbedscategory, h.teachingstatus, h.region,  b.aids, b.hepaticfailure, b.lymphoma, b.metastaticcancer,b.leukemia, b.immunosuppression, b. diabetes, b.cirrhosis, b.electivesurgery
-,t.dialysis as chronic_dialysis_prior_to_hospital,ch.charlson_score,c.unabridgedunitlos as real_icu_los,c. actualiculos,c.unabridgedhosplos as real_hospital_los,c.actualhospitallos, c.unabridgedactualventdays as ventduration,t.intubated as intubated_first_24h
-,(cv.sofa_cv+respi.sofa_respi+ renal.sofarenal+others.sofacoag+ others.sofaliver+others.sofacns) as sofatotal, c.predictedicumortality, c.actualicumortality
+,t.dialysis as chronic_dialysis_prior_to_hospital,ch.charlson_score,ch.mets6,ch.aids6,ch.liver3,ch.stroke2,ch.renal2,ch.dm,ch.cancer2,ch.leukemia2,ch.lymphoma2,ch.mi1,ch.chf1,ch.pvd1,ch.tia1
+,ch.dementia1,ch.copd1,ch.ctd1,ch.pud1,ch.liver1 ,ch.age_score, c.unabridgedunitlos as real_icu_los,c. actualiculos,c.unabridgedhosplos as real_hospital_los,c.actualhospitallos
+, c.unabridgedactualventdays as ventduration,t.intubated as intubated_first_24h,(cv.sofa_cv+respi.sofa_respi+ renal.sofarenal+others.sofacoag+ others.sofaliver+others.sofacns) as sofatotal
+, c.predictedicumortality, c.actualicumortality
 ,case -- fixing icu mortality
       when lower(c.actualicumortality) like '%alive%' THEN 0
       when lower(c.actualicumortality) like '%expired%' THEN 1 
       else null end as died_icu
-,c.apachescore,c.apacheversion, o.oasis, o.oasis_prob,c.predictedhospitalmortality,c.actualhospitalmortality,b.diedinhospital
+,c.apachescore,c.apacheversion, o.oasis, o.oasis_prob,c.predictedhospitalmortality,c.actualhospitalmortality
+
+,b.diedinhospital
 from patient a
 left join apachepredvar b
 on a.patientunitstayid = b.patientunitstayid
