@@ -1,6 +1,5 @@
-# APACHE IV model performance in obese patients
+# APACHE IV and OASIS performance according to BMI category in critical ill patients
 
-Comparison of model discrimination between obese and non obese on eICU-CRD
 
 inclusion criteria:
   - 1st ICU admission
@@ -10,3 +9,4 @@ inclusion criteria:
   - no missing information about hospital mortality
   - patients without pregnacy related diagnosis
   
+In this document wou may find our extraction queries and also our R codes for the statistical analysis and model perfomance assessment
