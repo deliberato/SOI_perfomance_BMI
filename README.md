@@ -1,4 +1,4 @@
-# APACHE IV and OASIS performance according to BMI category in critical ill patients. Also ..
+# APACHE IV and OASIS performance according to BMI category in critical ill patients. Also we assesses the effect of adding BMI as a risk adjustement variable in those scores.
 
 
 inclusion criteria:
