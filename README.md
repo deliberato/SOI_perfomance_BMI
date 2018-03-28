@@ -9,4 +9,4 @@ inclusion criteria:
   - no missing information about hospital mortality
   - patients without pregnacy related diagnosis
   
-In this document you may find our extraction queries and also our R codes for the statistical analysis and model perfomance assessment
+In this document you may find our extraction queries, our R codes for the statistical analysis and the model perfomance assessment
