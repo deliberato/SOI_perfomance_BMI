@@ -8,22 +8,22 @@
 WITH diag as
 (
 select patientunitstayid
- , max(case when lower(diagnosisstring) like '%pregnancy%' then 1 else 0 end) as pregnant
+ , max(case when lower(diagnosisstring) like '%pregnancy%' then 1 else 0 end) as pregnant -- making 1 diagnosis per row
 from diagnosis 
 group by patientunitstayid
 )
 ,t1 as -- extracting most of the variables
 (
 SELECT 
-	 a.patientunitstayid
-	, a.uniquepid, ROW_NUMBER() OVER (partition BY a.uniquepid ORDER BY  a.hospitaladmityear, a.hospitaladmitoffset DESC) AS position
+	a.patientunitstayid
+	, a.uniquepid, ROW_NUMBER() OVER (partition BY a.uniquepid ORDER BY  a.hospitaladmityear, a.hospitaladmitoffset DESC, a.patientunitstayid) AS position -- to get the first ICU admission
 	, a.hospitaladmityear
 	, a.age
         , CASE -- fixing age >89 to 93
                 WHEN a.age LIKE '%89%' then '93' 
                 ELSE a.age 
           END AS age_fixed
-    , a.gender
+        , a.gender
 	, a.ethnicity
 	, a.hospitaladmitsource
 	, a.unittype
@@ -33,7 +33,7 @@ SELECT
 	, a.admissionheight as height
 	, a.admissionweight as weight
 	, a.dischargeweight
-    , b.readmit
+        , b.readmit
 	, a.hospitalid
 	, h.numbedscategory
 	, h.teachingstatus
@@ -47,22 +47,22 @@ SELECT
 	, b.diabetes
 	, b.cirrhosis
 	, b.electivesurgery
-  , t.dialysis as chronic_dialysis_prior_to_hospital
+        , t.dialysis as chronic_dialysis_prior_to_hospital
 	, c.unabridgedunitlos as real_icu_los
 	, c.actualiculos
 	, c.unabridgedhosplos as real_hospital_los
 	, c.actualhospitallos
-  , c.unabridgedactualventdays as ventduration
+        , c.unabridgedactualventdays as ventduration
 	, t.intubated as intubated_first_24h
-  , c.predictedicumortality
+        , c.predictedicumortality
 	, c.actualicumortality
 	, c.acutephysiologyscore
-  , CASE -- fixing icu mortality
-      	WHEN lower(c.actualicumortality) LIKE '%alive%' THEN 0
-      	WHEN lower(c.actualicumortality) LIKE '%expired%' THEN 1 
-      	ELSE NULL 
-      END AS died_icu
-  , ch.charlson_score
+        , CASE -- fixing icu mortality
+      	      WHEN lower(c.actualicumortality) LIKE '%alive%' THEN 0
+      	      WHEN lower(c.actualicumortality) LIKE '%expired%' THEN 1 
+      	      ELSE NULL 
+              END AS died_icu
+        , ch.charlson_score
 	, ch.mets6
 	, ch.aids6
 	, ch.liver3
@@ -76,19 +76,19 @@ SELECT
 	, ch.chf1
 	, ch.pvd1
 	, ch.tia1
-  , ch.dementia1
+        , ch.dementia1
 	, ch.copd1
 	, ch.ctd1
 	, ch.pud1
 	, ch.liver1
 	, ch.age_score
-  , (cv.sofa_cv+respi.sofa_respi+ renal.sofarenal+others.sofacoag+ others.sofaliver+others.sofacns) as sofatotal
-  , c.apachescore
-  , c.apacheversion
-  , c.predictedhospitalmortality
-  , o.oasis
-  , o.oasis_prob
-  , b.diedinhospital
+        , (cv.sofa_cv+respi.sofa_respi+ renal.sofarenal+others.sofacoag+ others.sofaliver+others.sofacns) as sofatotal
+        , c.apachescore
+        , c.apacheversion
+        , c.predictedhospitalmortality
+        , o.oasis
+        , o.oasis_prob
+        , b.diedinhospital
 FROM patient a
 LEFT JOIN apache_pred_var b
      ON a.patientunitstayid = b.patientunitstayid
@@ -114,7 +114,7 @@ LEFT JOIN charlson_score ch
 LEFT JOIN oasis o
      ON a.patientunitstayid = o.patientunitstayid
  WHERE 
- a.age NOT in ( '0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') -- excluding patients below 16 years
+     a.age NOT in ( '0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') -- excluding patients below 16 years
 AND a.admissionheight IS NOT null
 AND a.admissionweight IS NOT  null
 AND c.predictedhospitalmortality != -1
@@ -132,9 +132,9 @@ AND d.pregnant != 1 -- excluding patients with preganacy related diagnosis
  SELECT t2.*,
 CASE
   WHEN t2.bmi < 18.5 THEN 1 -- underweight
-  WHEN t2.bmi >= 18.5 AND t2.bmi < 24.999999999 then 2 -- normal weight
-  WHEN t2.bmi >= 25 AND t2.bmi < 29.999999999 then 3 -- overweight
-  WHEN t2.bmi >= 30 AND t2.bmi < 39.999999999 THEN 4 -- obese
+  WHEN t2.bmi >= 18.5 AND t2.bmi < 25 then 2 -- normal weight
+  WHEN t2.bmi >= 25 AND t2.bmi < 30 then 3 -- overweight
+  WHEN t2.bmi >= 30 AND t2.bmi < 40 THEN 4 -- obese
   WHEN t2.bmi >= 40 THEN 5 
   ELSE 0 
  END AS bmi_group 
