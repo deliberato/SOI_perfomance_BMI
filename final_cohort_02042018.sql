@@ -90,12 +90,12 @@ SELECT
         , o.oasis_prob
         , b.diedinhospital
 FROM patient a
-LEFT JOIN apache_pred_var b
+LEFT JOIN apachepredvar b
      ON a.patientunitstayid = b.patientunitstayid
-LEFT JOIN apache_pacient_result c
+LEFT JOIN apachepatientresult c
      ON a.patientunitstayid = c.patientunitstayid
      AND c.apacheversion = 'IV'
-LEFT JOIN apache_aps_var t
+LEFT JOIN apacheapsvar t
      ON a.patientunitstayid = t.patientunitstayid
 LEFT JOIN diag d
      ON a.patientunitstayid = d.patientunitstayid
@@ -115,11 +115,11 @@ LEFT JOIN oasis o
      ON a.patientunitstayid = o.patientunitstayid
  WHERE 
      a.age NOT in ( '0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') -- excluding patients below 16 years
-AND a.admissionheight IS NOT null
-AND a.admissionweight IS NOT  null
-AND c.predictedhospitalmortality != -1
-AND a.admissionweight != 0.00   --  BETWEEN 30 AND  320  -- excluding patients with weight < 30kg and more tha 320 kg -- I compared with dischargeweight and weigths outside this range didn´t make sense
-AND a.admissionheight != 0.00  --  BETWEEN  120 AND  230 -- excluding patients with height less than 120 cm and more than 220 cm
+AND a.admissionheight IS NOT null -- excluding missing weight
+AND a.admissionweight IS NOT  null -- excludinh missing height
+AND c.predictedhospitalmortality != '-1' -- excluding patients with missing APACHE score
+AND a.admissionweight != 0.00   -- excluding weight = 0.00
+AND a.admissionheight != 0.00   -- excluding height = 0.00
 AND d.pregnant != 1 -- excluding patients with preganacy related diagnosis
 )
  , t2 AS  -- creating body mass index variable
@@ -135,12 +135,12 @@ CASE
   WHEN t2.bmi >= 18.5 AND t2.bmi < 25 then 2 -- normal weight
   WHEN t2.bmi >= 25 AND t2.bmi < 30 then 3 -- overweight
   WHEN t2.bmi >= 30 AND t2.bmi < 40 THEN 4 -- obese
-  WHEN t2.bmi >= 40 THEN 5 
+  WHEN t2.bmi >= 40 THEN 5 --morbid obese
   ELSE 0 
  END AS bmi_group 
  FROM t2
 WHERE t2.bmi between 10 and 65
 )
-SELECT count(patientunitstayid)
+SELECT t3.*
 FROM  t3
 where  t3.position = 1 -- including just the first ICU admission (according to hospital admission year)
