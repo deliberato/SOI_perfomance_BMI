@@ -1,4 +1,4 @@
-# APACHE IV and OASIS performance according to BMI category in critical ill patients. Also we assesses the effect of adding BMI as a risk adjustement variable in those scores.
+# Comparison of APACHE IV and OASIS score performance in critical ill patients with different body mass index (BMI) and the influence of BMI on model performance.
 
 
 inclusion criteria:
@@ -9,4 +9,4 @@ inclusion criteria:
   - no missing information about hospital mortality
   - patients without pregnacy related diagnosis
   
-In this document you may find our extraction queries and also our R codes for the statistical analysis and model perfomance assessment
+In this document you may find our extraction queries, our R codes for the statistical analysis and the model perfomance assessment
