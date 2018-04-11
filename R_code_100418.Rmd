@@ -1,0 +1,674 @@
+---
+title: "Obesity project"
+author: "Rodrigo Delibnerato"
+date: "4/10/2018"
+output: word_document
+---
+
+## Data visualization, transformation and assessing normality
+
+```{r transformation}
+
+total_rod$ethnicity<-as.factor(total_rod$ethnicity)
+total_rod$hospitaladmitsource<-as.factor(total_rod$hospitaladmitsource)
+total_rod$hospitaladmityear<-as.factor(total_rod$hospitaladmityear)
+total_rod$unittype<-as.factor(total_rod$unittype)
+total_rod$unitadmitsource<-as.factor(total_rod$unitadmitsource)
+total_rod$apacheadmissiondx<-as.factor(total_rod$apacheadmissiondx)
+total_rod$hospitalid<-as.factor(total_rod$hospitalid)
+
+hist(total_rod$age_fixed)
+hist(total_rod$height)
+hist(total_rod$weight)
+hist(total_rod$bmi)
+hist(total_rod$charlson_score)
+hist(total_rod$sofatotal)
+hist(total_rod$apachescore)
+
+
+with(total_rod , qqnorm((age_fixed)))
+with(total_rod , qqnorm((height)))
+with(total_rod , qqnorm((weight)))
+with(total_rod , qqnorm((bmi)))
+with(total_rod , qqnorm((charlson_score)))
+with(total_rod , qqnorm((sofatotal)))
+with(total_rod , qqnorm((apachescore)))
+
+summary(total_rod)
+
+```
+
+## Subsetting the data in using the bmi_group:
+   underweight
+   normal
+   overweight
+   obese
+   morbid obesity
+```{r subseting}
+
+
+under<-subset(total_rod, bmi_group == 1)
+
+normal<-subset(total_rod,bmi_group == 2)
+
+over<-subset(total_rod, bmi_group == 3)
+
+obese<-subset(total_rod, bmi_group == 4)
+
+morbid<-subset(total_rod, bmi_group == 5)
+
+```
+
+##Table 1 - manuscript
+
+https://github.com/kaz-yos/tableone
+
+https://www.r-bloggers.com/table-1-and-the-characteristics-of-study-population/
+
+https://www.rdocumentation.org/packages/tableone/versions/0.8.1/topics/print.TableOne
+
+http://rstudio-pubs-static.s3.amazonaws.com/13321_da314633db924dc78986a850813a50d5.html
+```{r Table 1}
+
+##data preparation for Table 1
+
+#adjusting ethnicity
+total_rod$ethnicity<-as.factor(total_rod$ethnicity)
+
+#transforming apache comorbidities in numeric values to create the apache_n_comorbidity variable
+
+total_rod$aids<-as.numeric(as.character(total_rod$aids))
+total_rod$hepaticfailure<-as.numeric(as.character(total_rod$hepaticfailure))
+total_rod$lymphoma<-as.numeric(as.character(total_rod$lymphoma))
+total_rod$metastaticcancer<-as.numeric(as.character(total_rod$metastaticcancer))
+total_rod$leukemia<-as.numeric(as.character(total_rod$leukemia))
+total_rod$immunosuppression<-as.numeric(as.character(total_rod$immunosuppression))
+total_rod$diabetes<-as.numeric(as.character(total_rod$diabetes))
+total_rod$cirrhosis<-as.numeric(as.character(total_rod$cirrhosis))
+
+total_rod$apache_n_comorbidity<-NA
+total_rod$apache_n_comorbidity<-total_rod$aids+total_rod$hepaticfailure+total_rod$lymphoma+total_rod$metastaticcancer+total_rod$leukemia+total_rod$immunosuppression+total_rod$diabetes+total_rod$cirrhosis
+total_rod$apache_n_comorbidity<- as.factor(total_rod$apache_n_comorbidity)
+
+#adjusting unittype
+total_rod$unidades<-NA
+total_rod$unidades[total_rod$unittype=="CCU-CTICU"]<-"Cardiac ICU"
+total_rod$unidades[total_rod$unittype=="CSICU"]<-"Cardiac ICU"
+total_rod$unidades[total_rod$unittype=="CTICU"]<-"Cardiac ICU"
+total_rod$unidades[total_rod$unittype=="Cardiac ICU"]<-"Cardiac ICU"
+total_rod$unidades[total_rod$unittype=="Med-Surg ICU"]<-"Mixed ICU"
+total_rod$unidades[total_rod$unittype=="MICU"]<-"MICU"
+total_rod$unidades[total_rod$unittype=="Neuro ICU"]<-"Neuro ICU"
+total_rod$unidades[total_rod$unittype=="SICU"]<-"Surgical ICU"
+total_rod$unidades<-as.factor(total_rod$unidades)
+
+#adjusting unitadmitsource
+total_rod$unitadmitsource<-as.factor(total_rod$unitadmitsource)
+total_rod$unidadedeadmissao<-total_rod$unitadmitsource
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Acute Care/Floor"]<-"Floor"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Chest Pain Center"]<-"Emergency Department"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Direct Admit"]<-"Emergency Department"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Emergency Department"]<-"Emergency Department"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Floor"]<-"Floor"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "ICU"]<-"Other"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "ICU to SDU"]<-"Other"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Observation"]<-"Emergency Department"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Operating Room"]<-"Operating Room"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Other"]<-"Other"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Other Hospital"]<-"Other"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Other ICU"]<-"Other"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "PACU"]<-"Operating Room"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Recovery Room"]<-"Operating Room"
+total_rod$unidadedeadmissao[total_rod$unidadedeadmissao== "Step-Down Unit (SDU)"]<-"Other"
+total_rod$unidadedeadmissao<-as.factor(total_rod$unidadedeadmissao)
+
+total_rod$diedinhospital<-as.factor(total_rod$diedinhospital)
+
+## Making Table 1
+library(tableone)
+require(ReporteRs)
+require(magrittr)
+
+
+listVars<- c("age_fixed","gender","ethnicity","bmi","apache_n_comorbidity","charlson_score",  "unidadedeadmissao", "unidades","region","numbedscategory","teachingstatus", "electivesurgery","sofatotal", "apachescore","oasis","intubated_first_24h","real_icu_los","real_hospital_los","diedinhospital")
+
+catVars<-c("gender","ethnicity", "unidadedeadmissao","apache_n_comorbidity", "unidades","region","numbedscategory","teachingstatus","electivesurgery","intubated_first_24h","diedinhospital")
+
+table1 <- CreateTableOne(vars = listVars, data = total_rod, factorVars = catVars,testNormal=oneway.test, strata = c("bmi_group"))
+
+table1<-print(table1,nonnormal=c("sofatotal", "apachescore","real_icu_los","real_hospital_los"),testApprox=c("gender","ethnicity", "unidadedeadmissao", "unidades","region","numbedscategory","teachingstatus","electivesurgery","intubated_first_24h","diedinhospital"))
+
+docx( ) %>% 
+     addFlexTable(table1 %>%
+     FlexTable(header.cell.props = cellProperties( background.color = "#003366"),
+               header.text.props = textBold( color = "white" ),
+               add.rownames = TRUE ) %>%
+               setZebraStyle( odd = "#DDDDDD", even = "#FFFFFF" ) ) %>%
+     writeDoc(file = "table1_03042018.docx")
+
+browseURL("table1_03042018.docx") #wordfile
+
+
+```
+
+## transforming diedinhospita from factor to numerical (again)
+
+```{r factor_to_numeric}
+
+total_rod$diedinhospital<-as.numeric(as.character(total_rod$diedinhospital))
+
+```
+
+## Creating the four new models using Logistic Regression: 
+
+   - r-AIV (APACHE IV recalibrated)
+   - r-OASIS (OASIS recalibrated)
+   - r-AIV-BMI (APACHE IV recalibrated with BMI)
+   - r-OASIS-BMI (OASIS recalibrated with BMI)
+
+How?
+1. Splitting training and test
+ - we decided to divide it by hospitals: from the total of 189 hospital in our final cohort, we split it (50/50) in different hospitals. So each new cohort will be formed from different hospital
+ 
+2. classifiers creation - 4 new classifiers for each new model
+
+```{r splitting training and test set }
+
+
+apache_models<-total_rod[,c(18,65,70,68)] # hospitalid, original apache predictions, bmi_group,diedinhospital
+oasis_models <-total_rod [,c(18,67,70,68)] # hospitalid, original oasis prediction, bmi_group, diedinhospital
+
+
+apache_training_set <- subset (apache_models, apache_models$hospitalid > 258)# subsetting 50% of the hospital 
+apache_test_set <- subset (apache_models, apache_models$hospitalid < 259)# subsetting 50% of the hospital 
+
+oasis_training_set <- subset (oasis_models, oasis_models$hospitalid > 258)# subsetting 50% of the hospital 
+oasis_test_set <- subset (oasis_models, oasis_models$hospitalid < 259)# subsetting 50% of the hospital 
+
+## Now, let`s create 4 new classifiers in the training set:
+
+  -- 1.  fit=apache_predicted_recalib            (apache recalibration + BMI)
+  -- 2.  fit.null=apache_predicted_recalib_null  (apache just recalibration)
+  -- 3.  fit2=oasis_predicted_recalib            (oasisrecalibration + BMI)
+  -- 4.  fit.null2=oasis_predicted_recalib_null  (oasis just recalibration)
+
+## 1. classifier for the model recalibration APACHE + BMI (r-AIV-BMI)
+
+logit <- function(x) {
+	return(log(x/(1-x)))
+}
+
+fit <- glm(diedinhospital ~ offset(logit(predictedhospitalmortality)) 
+           + bmi_group,data=apache_training_set,family="binomial")
+
+ 
+
+## 2. classifier for the model recalibration APACHE (r-AIV)
+
+logit <- function(x) {
+	return(log(x/(1-x)))
+}
+
+fit.null <- glm(diedinhospital ~ offset(logit(predictedhospitalmortality)) 
+                ,data=apache_training_set,family="binomial")
+
+
+## 3.classifier for the  model recalibration OASIS +BMI (r-OASIS-BMI)
+
+logit <- function(x) {
+	return(log(x/(1-x)))
+}
+
+fit2 <- glm(diedinhospital ~ offset(logit(oasis_prob)) + bmi_group,   
+            data=oasis_training_set,family="binomial")
+
+
+
+## 4.  classifier for the model recalibration OASIS (r-OASIS)
+
+logit <- function(x) {
+	return(log(x/(1-x)))
+}
+
+fit.null2 <- glm(diedinhospital ~ offset(logit(oasis_prob)),
+                 data=oasis_training_set,family="binomial")
+
+ 
+```
+
+## Adding the prediction (made in the training set) into the Test Set
+
+```{r adding predction into the test set}
+
+ apache_test_set$apache_predicted_recalib<-NA
+ apache_test_set$apache_predicted_recalib <- predict(fit, type='response', 
+                                                     newdata=apache_test_set) 
+ apache_test_set$apache_predicted_recalib_null <- NA
+ apache_test_set$apache_predicted_recalib_null <- predict(fit.null, type= 'response',
+                                                          newdata = apache_test_set)
+
+ oasis_test_set$oasis_predicted_recalib <- NA
+ oasis_test_set$oasis_predicted_recalib <- predict(fit2, type='response',
+                                                   newdata = oasis_test_set)
+
+ oasis_test_set$oasis_predicted_recalib_null <- NA
+ oasis_test_set$oasis_predicted_recalib_null <- predict(fit.null2, type= 'response',
+                                                        newdata = oasis_test_set)
+
+```
+
+## Splitting TEST SET into BMI categories
+
+```{r splitting}
+
+apache_under_test<-subset(apache_test_set, bmi_group == 1)
+oasis_under_test<-subset(oasis_test_set, bmi_group == 1)
+
+apache_normal_test<-subset(apache_test_set,bmi_group == 2)
+oasis_normal_test<-subset(oasis_test_set,bmi_group == 2)
+
+apache_over_test<-subset(apache_test_set, bmi_group ==3)
+oasis_over_test<-subset(oasis_test_set, bmi_group ==3)
+
+apache_obese_test<-subset(apache_test_set, bmi_group ==4)
+oasis_obese_test<-subset(oasis_test_set, bmi_group ==4)
+
+apache_morbid_test<-subset(apache_test_set, bmi_group ==5)
+oasis_morbid_test<-subset(oasis_test_set, bmi_group ==5)
+
+```
+
+## Assessing the original model APACHE performance, per BMI_group, in the testing set!!!
+
+```{r}
+library (pROC)
+
+## Making AUC and ci.AUC for original APACHE per BMI category, in the testing set!!!
+
+roc_total<-roc(apache_test_set$diedinhospital, apache_test_set$predictedhospitalmortality)
+auc(roc_total)
+ci.auc(roc_total)
+
+roc_under<-roc(apache_under_test$diedinhospital, apache_under_test$predictedhospitalmortality)
+auc(roc_under)
+ci.auc(roc_under)
+
+roc_normal<-roc(apache_normal_test$diedinhospital, apache_normal_test$predictedhospitalmortality)
+auc(roc_normal)
+ci.auc(roc_normal)
+
+roc_over<-roc(apache_over_test$diedinhospital, apache_over_test$predictedhospitalmortality)
+auc(roc_over)
+ci.auc(roc_over)
+
+roc_obese<-roc(apache_obese_test$diedinhospital, apache_obese_test$predictedhospitalmortality)
+auc(roc_obese)
+ci.auc(roc_obese)
+
+roc_morbid<-roc(apache_morbid_test$diedinhospital, apache_morbid_test$predictedhospitalmortality)
+auc(roc_morbid)
+ci.auc(roc_morbid)
+
+# Making SMR and 95% CI for original APACHE per BMI category
+
+library(ems)
+
+apache_test_set$diedinhospital<-as.numeric(as.character(apache_test_set$diedinhospital))
+apache_test_set$bmi_group<-as.factor(apache_test_set$bmi_group)
+
+
+SMR (apache_test_set$diedinhospital, apache_test_set$predictedhospitalmortality, digits = 2)
+SMR (apache_under_test$diedinhospital, apache_under_test$predictedhospitalmortality, digits = 2)
+SMR (apache_normal_test$diedinhospital, apache_normal_test$predictedhospitalmortality, digits = 2)
+SMR (apache_over_test$diedinhospital, apache_over_test$predictedhospitalmortality, digits = 2)
+SMR (apache_obese_test$diedinhospital, apache_obese_test$predictedhospitalmortality, digits = 2)
+SMR (apache_morbid_test$diedinhospital, apache_morbid_test$predictedhospitalmortality, digits = 2)
+
+```
+
+
+## Making AUC and ci.AUCand SMR (95%CI) for original OASIS per BMI category, in the testing set!!!
+
+```{r}
+
+
+library (pROC)
+
+## Making AUC and ci.AUC for original OASIS per BMI category, in the testing set!!!
+
+roc_total1<-roc(oasis_test_set$diedinhospital, oasis_test_set$oasis_prob)
+auc(roc_total1)
+ci.auc(roc_total1)
+
+roc_under1<-roc(oasis_under_test$diedinhospital, oasis_under_test$oasis_prob)
+auc(roc_under1)
+ci.auc(roc_under1)
+
+roc_normal1<-roc(oasis_normal_test$diedinhospital, oasis_normal_test$oasis_prob)
+auc(roc_normal1)
+ci.auc(roc_normal1)
+
+roc_over1<-roc(oasis_over_test$diedinhospital, oasis_over_test$oasis_prob)
+auc(roc_over1)
+ci.auc(roc_over1)
+
+roc_obese1<-roc(oasis_obese_test$diedinhospital, oasis_obese_test$oasis_prob)
+auc(roc_obese1)
+ci.auc(roc_obese1)
+
+roc_morbid1<-roc(oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_prob)
+auc(roc_morbid1)
+ci.auc(roc_morbid1)
+
+
+# Making SMR and 95% CI for original OASIS per BMI category
+
+library(ems)
+
+oasis_test_set$diedinhospital<-as.numeric(as.character(oasis_test_set$diedinhospital))
+oasis_test_set$bmi_group<-as.factor(oasis_test_set$bmi_group)
+
+
+SMR (oasis_test_set$diedinhospital, oasis_test_set$oasis_prob, digits = 2)
+SMR (oasis_under_test$diedinhospital, oasis_under_test$oasis_prob, digits = 2)
+SMR (oasis_normal_test$diedinhospital, oasis_normal_test$oasis_prob, digits = 2)
+SMR (oasis_over_test$diedinhospital, oasis_over_test$oasis_prob, digits = 2)
+SMR (oasis_obese_test$diedinhospital, oasis_obese_test$oasis_prob, digits = 2)
+SMR (oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_prob, digits = 2)
+
+
+
+```
+
+## Assessing the performance of these two new models in the TEST SET, according to the BMI category
+
+1. Discrimination: AUROC (95% CI)
+2. Calibration:
+    a.SMR (95% CI) -- http://www.openepi.com/SMR/SMR.htm 
+    b.calibration belt plot
+    
+ ## For APACHE + BMI model
+
+```{r}
+
+## Calculating AUROC APACHE IV + BMI -- > r-AIV-BMI
+
+library (pROC)
+
+roc_total2<-roc(apache_test_set$diedinhospital, apache_test_set$apache_predicted_recalib)
+auc(roc_total2)
+ci.auc(roc_total2)
+
+roc_under2<-roc(apache_under_test$diedinhospital, apache_under_test$apache_predicted_recalib)
+auc(roc_under2)
+ci.auc(roc_under2)
+
+roc_normal2<-roc(apache_normal_test$diedinhospital, apache_normal_test$apache_predicted_recalib)
+auc(roc_normal2)
+ci.auc(roc_normal2)
+
+roc_over2<-roc(apache_over_test$diedinhospital, apache_over_test$apache_predicted_recalib)
+auc(roc_over2)
+ci.auc(roc_over2)
+
+roc_obese2<-roc(apache_obese_test$diedinhospital, apache_obese_test$apache_predicted_recalib)
+auc(roc_obese2)
+ci.auc(roc_obese2)
+
+roc_morbid2<-roc(apache_morbid_test$diedinhospital, apache_morbid_test$apache_predicted_recalib)
+auc(roc_morbid2)
+ci.auc(roc_morbid2)
+
+# Making SMR and 95% CI for APACHE + BMI (r-AIV-BMI) per BMI category
+
+library(ems)
+
+apache_test_set$diedinhospital<-as.numeric(as.character(apache_test_set$diedinhospital))
+apache_test_set$bmi_group<-as.factor(apache_test_set$bmi_group)
+
+
+SMR (apache_test_set$diedinhospital, apache_test_set$apache_predicted_recalib, digits = 2)
+SMR (apache_under_test$diedinhospital, apache_under_test$apache_predicted_recalib, digits = 2)
+SMR (apache_normal_test$diedinhospital, apache_normal_test$apache_predicted_recalib, digits = 2)
+SMR (apache_over_test$diedinhospital, apache_over_test$apache_predicted_recalib, digits = 2)
+SMR (apache_obese_test$diedinhospital, apache_obese_test$apache_predicted_recalib, digits = 2)
+SMR (apache_morbid_test$diedinhospital, apache_morbid_test$apache_predicted_recalib, digits = 2)
+
+
+
+
+```
+
+## For APACHE IV recalibrated (without BMI) -> r-AIV
+
+```{r}
+
+#AUROC for APACHE IV (without BMI)-> r-AIV
+
+library (pROC)
+
+roc_total3<-roc(apache_test_set$diedinhospital, apache_test_set$apache_predicted_recalib_null)
+auc(roc_total3)
+ci.auc(roc_total3)
+
+roc_under3<-roc(apache_under_test$diedinhospital, apache_under_test$apache_predicted_recalib_null)
+auc(roc_under3)
+ci.auc(roc_under3)
+
+roc_normal3<-roc(apache_normal_test$diedinhospital, apache_normal_test$apache_predicted_recalib_null)
+auc(roc_normal3)
+ci.auc(roc_normal3)
+
+roc_over3<-roc(apache_over_test$diedinhospital, apache_over_test$apache_predicted_recalib_null)
+auc(roc_over3)
+ci.auc(roc_over3)
+
+roc_obese3<-roc(apache_obese_test$diedinhospital, apache_obese_test$apache_predicted_recalib_null)
+auc(roc_obese3)
+ci.auc(roc_obese3)
+
+roc_morbid3<-roc(apache_morbid_test$diedinhospital, apache_morbid_test$apache_predicted_recalib_null)
+auc(roc_morbid3)
+ci.auc(roc_morbid3)
+
+# Making SMR and 95% CI for APACHE (without BMI)-> r-AIV, per BMI category
+
+library(ems)
+
+apache_test_set$diedinhospital<-as.numeric(as.character(apache_test_set$diedinhospital))
+apache_test_set$bmi_group<-as.factor(apache_test_set$bmi_group)
+
+
+SMR (apache_test_set$diedinhospital, apache_test_set$apache_predicted_recalib_null, digits = 2)
+SMR (apache_under_test$diedinhospital, apache_under_test$apache_predicted_recalib_null, digits = 2)
+SMR (apache_normal_test$diedinhospital, apache_normal_test$apache_predicted_recalib_null, digits = 2)
+SMR (apache_over_test$diedinhospital, apache_over_test$apache_predicted_recalib_null, digits = 2)
+SMR (apache_obese_test$diedinhospital, apache_obese_test$apache_predicted_recalib_null, digits = 2)
+SMR (apache_morbid_test$diedinhospital, apache_morbid_test$apache_predicted_recalib_null, digits = 2)
+
+
+```
+
+## For OASIS + BMI model --> r-OASIS-BMI
+
+```{r}
+
+#AUROC for OASIS + BMI model--> r-OASIS-BMI
+
+library (pROC)
+
+roc_total4<-roc(oasis_test_set$diedinhospital, oasis_test_set$oasis_predicted_recalib)
+auc(roc_total4)
+ci.auc(roc_total4)
+
+roc_under4<-roc(oasis_under_test$diedinhospital, oasis_under_test$oasis_predicted_recalib)
+auc(roc_under4)
+ci.auc(roc_under4)
+
+roc_normal4<-roc(oasis_normal_test$diedinhospital, oasis_normal_test$oasis_predicted_recalib)
+auc(roc_normal4)
+ci.auc(roc_normal4)
+
+roc_over4<-roc(oasis_over_test$diedinhospital, oasis_over_test$oasis_predicted_recalib)
+auc(roc_over4)
+ci.auc(roc_over4)
+
+roc_obese4<-roc(oasis_obese_test$diedinhospital, oasis_obese_test$oasis_predicted_recalib)
+auc(roc_obese4)
+ci.auc(roc_obese4)
+
+roc_morbid4<-roc(oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_predicted_recalib)
+auc(roc_morbid4)
+ci.auc(roc_morbid4)
+
+# Making SMR and 95% CI for OASIS + BMI--> r-OASIS-BMI, per BMI category
+
+library(ems)
+
+oasis_test_set$diedinhospital<-as.numeric(as.character(oasis_test_set$diedinhospital))
+oasis_test_set$bmi_group<-as.factor(oasis_test_set$bmi_group)
+
+
+SMR (oasis_test_set$diedinhospital, oasis_test_set$oasis_predicted_recalib, digits = 2)
+SMR (oasis_under_test$diedinhospital, oasis_under_test$oasis_predicted_recalib, digits = 2)
+SMR (oasis_normal_test$diedinhospital, oasis_normal_test$oasis_predicted_recalib, digits = 2)
+SMR (oasis_over_test$diedinhospital, oasis_over_test$oasis_predicted_recalib, digits = 2)
+SMR (oasis_obese_test$diedinhospital, oasis_obese_test$oasis_predicted_recalib, digits = 2)
+SMR (oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_predicted_recalib, digits = 2)
+
+```
+
+## OASIS recalibration without BMI --> r-OASIS
+
+```{r}
+
+#AUROC for OASIS (without BMI)--> r-OASIS
+
+library (pROC)
+
+roc_total5<-roc(oasis_test_set$diedinhospital, oasis_test_set$oasis_predicted_recalib_null)
+auc(roc_total5)
+ci.auc(roc_total5)
+
+roc_under5<-roc(oasis_under_test$diedinhospital, oasis_under_test$oasis_predicted_recalib_null)
+auc(roc_under5)
+ci.auc(roc_under5)
+
+roc_normal5<-roc(oasis_normal_test$diedinhospital, oasis_normal_test$oasis_predicted_recalib_null)
+auc(roc_normal5)
+ci.auc(roc_normal5)
+
+roc_over5<-roc(oasis_over_test$diedinhospital, oasis_over_test$oasis_predicted_recalib_null)
+auc(roc_over5)
+ci.auc(roc_over5)
+
+roc_obese5<-roc(oasis_obese_test$diedinhospital, oasis_obese_test$oasis_predicted_recalib_null)
+auc(roc_obese5)
+ci.auc(roc_obese5)
+
+roc_morbid5<-roc(oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_predicted_recalib_null)
+auc(roc_morbid5)
+ci.auc(roc_morbid5)
+
+# Making SMR and 95% CI for OASIS (withour BMI)--> r-OASIS, per BMI category
+
+library(ems)
+
+oasis_test_set$diedinhospital<-as.numeric(as.character(oasis_test_set$diedinhospital))
+oasis_test_set$bmi_group<-as.factor(oasis_test_set$bmi_group)
+
+
+SMR (oasis_test_set$diedinhospital, oasis_test_set$oasis_predicted_recalib_null, digits = 2)
+SMR (oasis_under_test$diedinhospital, oasis_under_test$oasis_predicted_recalib_null, digits = 2)
+SMR (oasis_normal_test$diedinhospital, oasis_normal_test$oasis_predicted_recalib_null, digits = 2)
+SMR (oasis_over_test$diedinhospital, oasis_over_test$oasis_predicted_recalib_null, digits = 2)
+SMR (oasis_obese_test$diedinhospital, oasis_obese_test$oasis_predicted_recalib_null, digits = 2)
+SMR (oasis_morbid_test$diedinhospital, oasis_morbid_test$oasis_predicted_recalib_null, digits = 2)
+
+
+
+```
+
+## Making the Calibration belt
+https://cran.r-project.org/web/packages/givitiR/vignettes/givitiR.html
+
+```{r calibration belt}
+
+#some transformations to make the Calibration belt
+
+apache_test_set$diedinhospital<-as.numeric(as.character(apache_test_set$diedinhospital))
+
+oasis_test_set$diedinhospital<-as.numeric(as.character(oasis_test_set$diedinhospital))
+
+
+
+library(givitiR)
+
+#calibration plot for APACHE IV
+
+data("apache_test_set")
+cb <- givitiCalibrationBelt(o = apache_test_set$diedinhospital, 
+                            e = apache_test_set$predictedhospitalmortality,
+                            devel = "external") #the model has been developed on an external sample(external).
+plot(cb, main = "APACHE IV calibration (AIV)",
+                          xlab = "APACHE IV predicted probability",
+                          ylab = "Observed mortality")
+
+#calibration plot for OASIS
+
+data ("oasis_test_set")
+cb <- givitiCalibrationBelt(o = oasis_test_set$diedinhospital, 
+                            e = oasis_test_set$oasis_prob,
+                            devel = "external") #the model has been developed on an external sample(external).
+plot(cb, main = "OASIS calibration (OASIS)",
+                          xlab = "OASIS predicted probability",
+                          ylab = "Observed mortality")
+
+#calibration plot for APACHE IV recalibrated (r-AIV)
+
+data ("apache_test_set")
+cb <- givitiCalibrationBelt(o = apache_test_set$diedinhospital, 
+                            e = apache_test_set$apache_predicted_recalib_null,
+                            devel = "internal") #the model has been fit on the same dataset underevaluation(internal)
+plot(cb, main = "APACHE IV recalibrated (r-AIV) ",
+                          xlab = "APACHE IV recalibrated predicted probability",
+                          ylab = "Observed mortality")
+
+
+#calibration plot for APACHE IV recalibrated by BMI group (r-AIV-BMI)
+
+data ("apache_test_set")
+cb <- givitiCalibrationBelt(o = apache_test_set$diedinhospital, 
+                            e = apache_test_set$apache_predicted_recalib,
+                            devel = "internal") #the model has been fit on the same dataset underevaluation(internal)
+plot(cb, main = "APACHE IV recalibrated with BMI  (r-AIV-BMI) ",
+                          xlab = "APACHE IV recalibrated by BMI group predicted probability",
+                          ylab = "Observed mortality")
+
+
+#calibration plot for OASIS recalibrated (r-OASIS)
+
+data ("oasis_test_set")
+cb <- givitiCalibrationBelt(o = oasis_test_set$diedinhospital, 
+                            e = oasis_test_set$oasis_predicted_recalib_null,
+                            devel = "internal") #the model has been fit on the same dataset underevaluation(internal)
+plot(cb, main = "OASIS recalibrated  (r-OASIS) ",
+                          xlab = "OASIS recalibrated predicted probability",
+                          ylab = "Observed mortality")
+
+
+#calibration plot for OASIS recalibrated by BMI group (r-OASIS-BMI)
+
+data ("oasis_test_set")
+cb <- givitiCalibrationBelt(o = oasis_test_set$diedinhospital, 
+                            e = oasis_test_set$oasis_predicted_recalib,
+                            devel = "internal") #the model has been fit on the same dataset underevaluation(internal)
+plot(cb, main = "OASIS recalibrated with BMI (r-OASIS-BMI) ",
+                          xlab = "OASIS recalibrated by BMI group predicted probability",
+                          ylab = "Observed mortality")
+
+```
+
+
+
+
