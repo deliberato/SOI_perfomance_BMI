@@ -1,4 +1,4 @@
-# Comparison of APACHE IV and OASIS score performance in critical ill patients with different body mass index (BMI) and the influence of BMI on model performance.
+# An evaluation of the influence of body mass index on severity scoring.
 
 
 inclusion criteria:
